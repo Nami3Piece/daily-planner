@@ -1,0 +1,416 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="时间管家">
+<title>每日时间管家</title>
+<style>
+:root{
+  --bg:#f2f2f7;--card:#fff;--border:#e5e5ea;
+  --text:#1c1c1e;--sub:#8e8e93;--hint:#aeaeb2;
+  --blue:#007aff;--green:#34c759;--red:#ff3b30;
+  --orange:#ff9500;--purple:#af52de;--teal:#5ac8fa;
+  --pink:#ff2d55;--indigo:#5856d6;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+.nav{position:sticky;top:0;z-index:100;background:rgba(242,242,247,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:.5px solid var(--border);padding:12px 16px 8px}
+.nav-title{font-size:17px;font-weight:600;text-align:center}
+.nav-sub{font-size:12px;color:var(--sub);text-align:center;margin-top:2px}
+.now-wrap{padding:14px 16px 0}
+.now-card{border-radius:18px;padding:18px;color:#fff;position:relative;overflow:hidden}
+.now-label{font-size:11px;font-weight:600;opacity:.8;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.now-title{font-size:22px;font-weight:700;line-height:1.2;margin-bottom:8px}
+.now-next{font-size:13px;opacity:.8;margin-bottom:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now-bar-bg{height:5px;background:rgba(255,255,255,.3);border-radius:3px}
+.now-bar{height:5px;background:#fff;border-radius:3px;transition:width .5s}
+.now-time{position:absolute;top:18px;right:18px;font-size:28px;font-weight:300;opacity:.9}
+.tabs{display:flex;gap:6px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:7px 16px;border-radius:20px;font-size:14px;font-weight:500;border:.5px solid var(--border);background:var(--card);color:var(--sub);cursor:pointer;transition:.15s}
+.tab.on{background:var(--text);color:#fff;border-color:var(--text)}
+.section{padding:14px 16px 0}
+.sec-title{font-size:13px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.tl{display:flex;flex-direction:column;gap:2px}
+.tl-row{display:flex;gap:10px;align-items:stretch}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:46px;flex-shrink:0}
+.tl-time{font-size:11px;color:var(--hint);white-space:nowrap;padding-top:10px}
+.tl-line{flex:1;width:1.5px;background:var(--border);margin-top:3px}
+.tl-line.active{background:var(--blue)}
+.tl-card{flex:1;border-radius:12px;padding:10px 12px;margin-bottom:2px;border:.5px solid var(--border);background:var(--card)}
+.tl-card.active{border-width:1.5px}
+.tl-card.done{opacity:.5}
+.tl-top{display:flex;justify-content:space-between;align-items:flex-start}
+.tl-name{font-size:14px;font-weight:500;line-height:1.3;flex:1}
+.tl-dur{font-size:11px;color:var(--hint);margin-left:6px;margin-top:2px;white-space:nowrap}
+.tl-badges{display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.badge-active{background:var(--blue);color:#fff}
+.badge-done{background:#e5e5ea;color:var(--sub)}
+.tl-detail{font-size:12px;color:var(--sub);margin-top:7px;line-height:1.8;background:var(--bg);border-radius:8px;padding:8px 10px}
+.tl-expand{font-size:11px;color:var(--blue);margin-top:4px;cursor:pointer}
+.meal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.meal-card{background:var(--card);border-radius:14px;padding:12px 14px;border:.5px solid var(--border)}
+.meal-card.wide{grid-column:1/-1}
+.meal-icon{font-size:22px;margin-bottom:4px}
+.meal-time{font-size:10px;color:var(--hint);font-weight:600;letter-spacing:.3px}
+.meal-name{font-size:13px;font-weight:600;margin:3px 0;color:var(--text)}
+.meal-cal{font-size:11px;font-weight:600;margin-bottom:6px}
+.meal-items{font-size:12px;color:var(--sub);line-height:1.8}
+.day-wrap{display:flex;gap:6px;overflow-x:auto;padding:4px 2px;scrollbar-width:none}
+.day-wrap::-webkit-scrollbar{display:none}
+.day-btn{flex-shrink:0;width:42px;height:54px;border-radius:12px;border:.5px solid var(--border);background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:var(--sub);font-weight:500;position:relative}
+.day-btn.on{background:var(--text);color:#fff;border-color:var(--text)}
+.day-btn .d-num{font-size:17px;font-weight:700;line-height:1}
+.day-btn .d-wk{font-size:9px;margin-top:2px}
+.dot{position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--pink)}
+.mtg-pill{display:inline-flex;align-items:center;gap:5px;background:#f0f0ff;border:.5px solid #b3b3f0;color:#4a4ab8;font-size:12px;font-weight:500;padding:6px 12px;border-radius:10px;margin-bottom:6px;width:100%}
+.mtg-pill.conflict{background:#fff5e6;border-color:#ffcc80;color:#b35c00}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(242,242,247,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--border);display:flex;padding:8px 0 20px}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-size:10px;font-weight:500;color:var(--hint);padding:4px 0}
+.bnav-btn.on{color:var(--blue)}
+.bnav-icon{font-size:22px}
+.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.health-card{background:var(--card);border-radius:14px;padding:12px;text-align:center;border:.5px solid var(--border)}
+.health-val{font-size:22px;font-weight:700}
+.health-lbl{font-size:11px;color:var(--sub);margin-top:2px}
+.progress-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px}
+.progress-bg{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.progress-fill{height:8px;border-radius:4px;transition:width .5s}
+.c-blue{color:var(--blue)}.c-green{color:var(--green)}.c-red{color:var(--red)}.c-orange{color:var(--orange)}
+.bg-blue{background:linear-gradient(135deg,#007aff,#5ac8fa)}
+.bg-green{background:linear-gradient(135deg,#34c759,#30d158)}
+.bg-red{background:linear-gradient(135deg,#ff3b30,#ff6b6b)}
+.bg-orange{background:linear-gradient(135deg,#ff9500,#ffcc00)}
+.bg-purple{background:linear-gradient(135deg,#af52de,#5856d6)}
+.bg-pink{background:linear-gradient(135deg,#ff2d55,#ff6b95)}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-title">每日时间管家</div>
+  <div class="nav-sub" id="navSub">正在加载...</div>
+</div>
+
+<div id="app"></div>
+
+<div class="bnav">
+  <div class="bnav-btn on" id="btn-today" onclick="setView('today')"><div class="bnav-icon">📋</div>今日</div>
+  <div class="bnav-btn" id="btn-meals" onclick="setView('meals')"><div class="bnav-icon">🥗</div>餐食</div>
+  <div class="bnav-btn" id="btn-plan" onclick="setView('plan')"><div class="bnav-icon">📅</div>计划</div>
+  <div class="bnav-btn" id="btn-health" onclick="setView('health')"><div class="bnav-icon">💪</div>健康</div>
+</div>
+
+<script>
+const MEALS=[
+  ["全麦面包1片+水煮蛋1个+无糖豆浆1杯+蓝莓一小把","小半碗糙米饭+鸡胸肉手掌大炒西兰花5-6朵+凉拌菠菜一大把","清蒸鳕鱼一块巴掌大+紫薯1/4个+番茄菌菇汤一碗","无糖酸奶小半杯+圣女果5颗",300,450,350,100,"w1"],
+  ["燕麦3大勺+牛奶小半杯+煮鸡蛋1个+苹果半个","浅半碗藜麦饭+约8只虾仁炒芦笋两大把+凉拌黄瓜半根","嫩豆腐半块+蒸南瓜2-3片+海带冬瓜汤一碗","巴旦木10颗",300,450,350,100,"w1"],
+  ["全麦吐司1片+牛油果1/4个(挖2勺)+煎蛋1个+黑咖啡","小半碗糙米饭+卤牛肉手掌大+芹菜腐竹两大把","水煮虾仁约8只+蒸土豆半个+白菜豆腐汤一碗","低脂牛奶1杯",300,450,350,100,"w1"],
+  ["玉米半根+水煮蛋1个+低脂奶酪薄薄一片+西柚半个","全麦意面一小把(拳头大)+番茄牛肉(牛肉手掌大+番茄1个)","清蒸鲈鱼一块巴掌大+杂粮馒头小半个+凉拌豆芽两大把","黄瓜1根+无糖豆浆小半杯",300,450,350,100,"w1"],
+  ["紫薯半个+水煮蛋1个+无糖酸奶一小杯+猕猴桃1个","小半碗糙米饭+去皮鸡腿肉手掌大+胡萝卜西兰花两大把","豆腐煲(豆腐大半块+牛肉片5-6片+少许韩式辣酱)","蓝莓一小把+坚果5颗",300,450,350,100,"w1"],
+  ["鸡蛋蔬菜煎饼1张(鸡蛋1个+菠菜一小把+全麦粉3大勺)","浅半碗藜麦饭+烤牛排手掌大+芦笋两大把","冬瓜蛤蜊汤一碗+蒸玉米半根+凉拌鸡丝(约八分手掌大)","苹果1个",300,450,350,100,"w1"],
+  ["🚨轻断食日 水煮蛋2个+黄瓜1根+鸡胸肉手掌大+菠菜两大把","全天饮水≥5大杯 无淀粉无加餐","控制全天500大卡以内","仅饮水",500,0,0,0,"ch"],
+  ["全麦三明治(面包2片+煎蛋1个+生菜3-4片+番茄2片)","黑椒牛排手掌大+全麦意面一小把(拳头大)+清炒芦笋两大把","海鲜冬瓜汤一碗(约5只虾仁)+蒸南瓜2-3片","无糖酸奶一小杯+草莓5颗",350,500,400,150,"w2"],
+  ["燕麦粥(燕麦3大勺+脱脂奶1杯)+水煮蛋1个+香蕉半根","小半碗藜麦饭+番茄虾仁(约10只虾仁+番茄1个)","去皮卤鸡腿1个+凉拌豆芽两大把+紫薯1/4个","烤鹰嘴豆一小把",350,500,400,150,"w2"],
+  ["鸡蛋卷饼1个(全麦饼1张+鸡蛋1个+黄瓜丝半根)","小半碗糙米饭+青椒炒鸡胸肉(手掌大+青椒2个)+凉拌秋葵一大把","清蒸黄鱼一块巴掌大+蒸山药5-6片+番茄蛋花汤一碗","橙子1个",350,500,400,150,"w2"],
+  ["杂粮粥一小碗(燕麦+红豆+薏米共3大勺)+煎蛋1个+猕猴桃","虾仁炒时蔬(约10只虾仁+彩椒1个+荷兰豆两大把)+浅半碗糙米饭","凉拌鸡丝(鸡胸肉手掌大+黄瓜丝半根)+海带豆腐汤一碗","无糖坚果一小把(约20颗)",350,500,400,150,"w2"],
+  ["牛油果奶昔(牛油果1/4个+香蕉半根+酸奶一小杯)打匀","番茄牛肉藜麦饭(牛肉手掌大+番茄1个+小半碗藜麦饭)","水煮牛肉片约8-10片+蒸南瓜2-3片+凉拌莴笋两大把","胡萝卜1根",350,500,400,150,"w2"],
+  ["全麦面包2片+低脂奶酪薄薄2片+水煮蛋1个+黑咖啡","鸡腿肉烧豆腐(去皮鸡腿1个+豆腐半块)+小半碗糙米饭","烤鳕鱼一块巴掌大+蒸玉米半根+凉拌菠菜两大把","火龙果半个",350,500,400,150,"w2"],
+  ["🎉欺骗餐日 自选健康餐 如日式寿司卷6-8个+味噌汤一碗","全天自选健康餐 合计≤1800大卡","全天热量≤1800大卡 可适当放松","自由选择",1800,0,0,0,"ch"],
+  ["鸡蛋蔬菜煎饼1张(鸡蛋1个+全麦粉3大勺+菠菜一小把)","番茄牛腩(牛腩手掌大+番茄1个)+小半碗糙米饭","凉拌豆腐半块+蒸紫薯半个+菌菇汤一碗","无糖酸奶小半杯",300,450,350,100,"w3"],
+  ["燕麦3大勺+牛奶1杯+水煮蛋1个+蓝莓一小把","鸡胸肉沙拉(鸡胸肉手掌大+生菜3-4大片+少许油醋汁)","清蒸虾仁约10只+蒸南瓜2-3片+凉拌黄瓜半根","苹果1个",300,450,350,100,"w3"],
+  ["全麦三明治(面包2片+煎蛋1个+番茄2片)","小半碗藜麦饭+烤三文鱼一块巴掌大+芦笋两大把","韩式嫩豆腐煲(豆腐大半块+牛肉片5-6片)+杂粮馒头小半个","烤鹰嘴豆一小把",300,450,350,100,"w3"],
+  ["紫薯半个+水煮蛋1个+无糖豆浆1杯","虾仁炒时蔬(约10只虾仁+西兰花约8朵)+浅半碗糙米饭","去皮烤鸡翅2个+玉米半根+凉拌生菜两大把","猕猴桃1个",300,450,350,100,"w3"],
+  ["杂粮粥一小碗(燕麦+小米共3大勺)+煎蛋1个+圣女果5颗","青豆炒虾仁(约10只虾仁+青豆一把)+小半碗糙米饭","水煮牛肉片约8-10片+蒸土豆1个+番茄汤一碗","无糖坚果一小把(约15-20颗)",300,450,350,100,"w3"],
+  ["牛油果香蕉奶昔(牛油果1/4个+香蕉半根+酸奶一小杯)打匀","黑椒鸡胸肉手掌大+全麦意面一小把(拳头大)+清炒芥蓝两大把","海鲜豆腐汤一碗(豆腐半块+蛤蜊约8-10个)+蒸南瓜2-3片","黄瓜1根",300,450,350,100,"w3"],
+  ["🎉欺骗餐日 牛排手掌大+烤蔬菜满满一盘+红薯半个","全天热量≤2000大卡 自由选择健康食材","庆祝坚持三周！正餐正常吃 不暴饮暴食","自由选择",2000,0,0,0,"ch"],
+];
+
+const PHASE={
+  w1:{name:"清体启动期",goal:"调整代谢·减少水肿",grad:"bg-green"},
+  w2:{name:"燃脂加速期",goal:"优化脂肪代谢·增强饱腹感",grad:"bg-red"},
+  w3:{name:"巩固维持期",goal:"稳定代谢·预防反弹",grad:"bg-blue"},
+  ch:{name:"欺骗餐日",goal:"稳定代谢·预防代谢适应",grad:"bg-pink"}
+};
+
+const MEETINGS={
+  1:[{t:"10:10",e:"11:00",n:"👥 周会·汤敏",conflict:false}],
+  2:[{t:"16:30",e:"17:30",n:"🔗 Arkreen Sync",conflict:true}],
+  3:[{t:"10:30",e:"11:30",n:"⛵ BoAT/TLAY 例会",conflict:false}],
+  4:[{t:"16:30",e:"17:30",n:"🔗 Arkreen Sync",conflict:true}],
+  5:[],
+  6:[{t:"10:30",e:"11:30",n:"⛵ BoAT/TLAY 例会",conflict:false}],
+  0:[]
+};
+
+const WD_CN=["周日","周一","周二","周三","周四","周五","周六"];
+
+function toMin(s){const[h,m]=s.split(":").map(Number);return h*60+m;}
+function fmtTime(d){return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
+function fmtDur(m){const h=Math.floor(m/60),mn=m%60;return h>0?(mn>0?h+"h"+mn+"m":h+"h"):(mn+"m");}
+
+let planDay=1,view="today",expanded=new Set(),ticker;
+
+function getSchedule(day,wd){
+  const m=MEALS[day-1],isCheat=m[8]==="ch";
+  const dayMtgs=MEETINGS[wd]||[];
+  const hasMornMtg=dayMtgs.some(x=>toMin(x.t)<720);
+  const S=[];
+  const add=(t,e,n,type,color,detail,conflict)=>S.push({t,e,n,type,color,detail,conflict});
+
+  add("06:00","06:10","☀️ 起床·喝500ml温水","life","#ff9500");
+  add("06:10","06:30","🍳 早餐","food","#34c759",m[0]);
+  add("06:30","08:00","📚 陪儿子读书（早·90分钟）","family","#007aff");
+  add("08:00","08:15","💼 规划今日任务","work","#5856d6");
+  add("08:15","09:00","💼 深度工作","work","#5856d6");
+  add("09:00","09:05","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+
+  if(!hasMornMtg){
+    add("09:05","10:00","💼 深度工作","work","#5856d6");
+    add("10:00","10:05","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+    add("10:05","11:00","💼 专注工作","work","#5856d6");
+    add("11:00","11:05","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+    add("11:05","12:00","💼 专注工作","work","#5856d6");
+  }else{
+    add("09:05","10:05","💼 深度工作","work","#5856d6");
+    dayMtgs.filter(x=>toMin(x.t)<720).forEach(x=>add(x.t,x.e,x.n,"meeting","#5856d6","",x.conflict));
+    add("11:00","11:05","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+    add("11:05","12:00","💼 整理会议记录·专注工作","work","#5856d6");
+  }
+
+  add("12:00","12:25","🥗 午餐","food","#34c759",m[1]);
+
+  if(!isCheat){
+    add("12:25","12:40","🚶 饭后室内缓步（15分钟）","fitness","#ff9500");
+    add("12:40","13:00","🏋 HIIT训练（20分钟）","fitness","#ff3b30","跳绳30s×4 · 波比跳20个×3 · 高抬腿40s×3 · 登山者30s×3");
+    add("13:00","13:40","💪 肌肉塑形训练（40分钟）","fitness","#ff3b30","深蹲4×15 · 俯卧撑4×12 · 哑铃划船4×12 · 平板支撑3×45s");
+    add("13:40","13:50","🚿 冲凉补水","life","#5ac8fa");
+    add("13:50","14:05","💄 出门前化妆（15分钟）","makeup","#ff2d55","防晒霜→轻薄底妆→眉毛→口红");
+    add("14:05","14:35","🌳 户外散步（30分钟）","fitness","#34c759");
+    add("14:35","14:50","🧴 回家立即卸妆护肤","skincare","#af52de","卸妆水→洁面→爽肤水→面霜（妆容仅带约30分钟）");
+    add("14:50","14:55","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+    add("14:55","15:00","💼 处理积累消息","work","#5856d6");
+  }
+
+  add("15:00","15:15","🍎 加餐","food","#ff9500",m[3]);
+  add("15:15","15:20","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+  add("15:20","16:00","💼 专注工作","work","#5856d6");
+  add("16:00","16:05","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+  add("16:05","16:30","💼 收尾工作·回复消息","work","#5856d6");
+
+  dayMtgs.filter(x=>toMin(x.t)>=720).forEach(x=>
+    add(x.t,x.e,x.n,"meeting","#ff9500",x.conflict?"⚠️ 与陪读时间冲突，建议与团队协商调至14:30":"",x.conflict)
+  );
+
+  add("16:30","18:00","📚 陪儿子读书（晚·第一段）","family","#007aff");
+  add("18:00","18:30","🍲 晚餐","food","#34c759",m[2]);
+  add("18:30","20:00","📚 陪儿子读书（晚·第二段）","family","#007aff");
+  add("20:00","20:05","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+  add("20:05","21:00","📖 陪儿子睡前阅读","family","#007aff");
+  add("21:00","21:05","💬 消息检查·微信×3+Lark+TG","msg","#ff2d55");
+  add("21:05","21:30","🏫 回复老师消息/学校群","evening","#af52de");
+  add("21:30","22:00","💻 夜间工作（不做体能训练）","evening","#af52de");
+  add("22:00","22:10","💤 准备睡觉·放下手机","sleep","#5856d6");
+
+  return S.sort((a,b)=>toMin(a.t)-toMin(b.t));
+}
+
+function nowMin(){const d=new Date();return d.getHours()*60+d.getMinutes();}
+
+function render(){
+  const now=new Date(),nm=nowMin(),wd=now.getDay();
+  const sched=getSchedule(planDay,wd);
+  const cur=sched.find(s=>nm>=toMin(s.t)&&nm<toMin(s.e));
+  const nxt=sched.find(s=>toMin(s.t)>nm);
+  const m=MEALS[planDay-1];
+  const ph=PHASE[m[8]];
+  const week=Math.ceil(planDay/7);
+  const totalCal=m[4]+(m[5]||0)+(m[6]||0)+(m[7]||0);
+  const dayMtgs=MEETINGS[wd]||[];
+
+  document.getElementById("navSub").textContent=
+    `第${week}周·第${planDay}天·${WD_CN[wd]}·${ph.name}`;
+
+  let html="";
+
+  /* ── TODAY ── */
+  if(view==="today"){
+    if(cur){
+      const pct=Math.round(((nm-toMin(cur.t))/(toMin(cur.e)-toMin(cur.t)))*100);
+      html+=`<div class="now-wrap"><div class="now-card ${ph.grad}">
+        <div class="now-time">${fmtTime(now)}</div>
+        <div class="now-label">现在进行</div>
+        <div class="now-title">${cur.n}</div>
+        <div class="now-next">${nxt?"→ "+nxt.t+" "+nxt.n.slice(0,16):""}</div>
+        <div class="now-bar-bg"><div class="now-bar" style="width:${pct}%"></div></div>
+      </div></div>`;
+    }
+    if(dayMtgs.length){
+      html+=`<div class="section"><div class="sec-title">今日会议</div>`;
+      dayMtgs.forEach(x=>{
+        html+=`<div class="mtg-pill${x.conflict?" conflict":""}">${x.n}  ${x.t}–${x.e}${x.conflict?" ⚠️冲突":""}</div>`;
+      });
+      html+="</div>";
+    }
+    html+=`<div class="section"><div class="sec-title">完整日程</div><div class="tl">`;
+    sched.forEach((s,i)=>{
+      const done=nm>=toMin(s.e);
+      const active=nm>=toMin(s.t)&&nm<toMin(s.e);
+      const dur=toMin(s.e)-toMin(s.t);
+      const eid="e"+i;
+      const isExp=expanded.has(eid);
+      const bdr=active?`border-color:${s.color};background:#fff`:done?"background:#fafafa":"";
+      html+=`<div class="tl-row">
+        <div class="tl-left">
+          <div class="tl-time" style="${active?`color:${s.color};font-weight:600`:""}">${s.t}</div>
+          <div class="tl-line${active?" active":""}"></div>
+        </div>
+        <div class="tl-card${active?" active":done?" done":""}" style="${bdr}">
+          <div class="tl-top">
+            <div class="tl-name" style="${active?`color:${s.color}`:""}">${s.n}</div>
+            <div class="tl-dur">${fmtDur(dur)}</div>
+          </div>
+          <div class="tl-badges">
+            ${active?`<span class="badge badge-active">进行中</span>`:""}
+            ${done?`<span class="badge badge-done">✓</span>`:""}
+            ${s.conflict?`<span class="badge" style="background:#fff5e6;color:#b35c00">⚠️冲突</span>`:""}
+          </div>
+          ${s.detail?`<div class="tl-expand" onclick="toggle('${eid}')">${isExp?"▲ 收起":"▼ 展开详情"}</div>`:""}
+          ${s.detail&&isExp?`<div class="tl-detail">${s.detail}</div>`:""}
+        </div>
+      </div>`;
+    });
+    html+="</div></div>";
+  }
+
+  /* ── MEALS ── */
+  if(view==="meals"){
+    html+=`<div class="section"><div class="sec-title">今日餐食·第${planDay}天</div>
+    <div class="meal-grid">
+      ${mc("🍳","早餐","06:10",m[0],m[4],"c-orange")}
+      ${mc("🥗","午餐","12:00",m[1],m[5],"c-green")}
+      ${mc("🍲","晚餐","18:00",m[2],m[6],"c-blue",true)}
+      ${mc("🍎","加餐","15:00",m[3],m[7],"c-red")}
+    </div>
+    <div style="background:var(--card);border-radius:14px;padding:14px 16px;border:.5px solid var(--border);margin-top:8px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px">今日总热量</div>
+      <div style="font-size:32px;font-weight:700;color:var(--blue)">${totalCal}<span style="font-size:14px;font-weight:400;color:var(--sub)"> kcal</span></div>
+      <div style="font-size:12px;color:var(--sub);margin-top:4px">${ph.name}·${ph.goal}</div>
+    </div></div>`;
+  }
+
+  /* ── PLAN ── */
+  if(view==="plan"){
+    html+=`<div class="section"><div class="sec-title">三周计划</div>`;
+    [1,2,3].forEach(w=>{
+      const wn=w===1?"清体启动期":w===2?"燃脂加速期":"巩固维持期";
+      const wc=w===1?"#34c759":w===2?"#ff3b30":"#007aff";
+      html+=`<div style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:600;color:${wc};margin-bottom:6px">第${w}周·${wn}</div>
+        <div class="day-wrap">`;
+      for(let d=(w-1)*7+1;d<=w*7;d++){
+        const dm=MEALS[d-1],ic=d===7||d===14||d===21;
+        const lbl=ic?"欺骗":dm[8]==="w1"?"启动":dm[8]==="w2"?"燃脂":"维持";
+        html+=`<div class="day-btn${planDay===d?" on":""}" onclick="setDay(${d})">
+          ${ic?`<div class="dot"></div>`:""}
+          <div class="d-num">${d}</div>
+          <div class="d-wk">${lbl}</div>
+        </div>`;
+      }
+      html+="</div></div>";
+    });
+    html+=`<div style="background:var(--card);border-radius:14px;padding:14px 16px;border:.5px solid var(--border);margin-top:4px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">第${planDay}天食谱</div>
+      <div style="font-size:12px;color:var(--sub);line-height:2.2">
+        <div><b style="color:var(--text)">早餐</b> ${m[0]}</div>
+        <div><b style="color:var(--text)">午餐</b> ${m[1]}</div>
+        <div><b style="color:var(--text)">晚餐</b> ${m[2]}</div>
+        <div><b style="color:var(--text)">加餐</b> ${m[3]}</div>
+      </div>
+    </div></div>`;
+  }
+
+  /* ── HEALTH ── */
+  if(view==="health"){
+    html+=`<div class="section">
+    <div class="sec-title">身体数据</div>
+    <div class="health-grid">
+      <div class="health-card"><div class="health-val c-blue">67.4</div><div class="health-lbl">体重 kg</div></div>
+      <div class="health-card"><div class="health-val c-green">23.7</div><div class="health-lbl">BMI</div></div>
+      <div class="health-card"><div class="health-val c-red">30.4<span style="font-size:14px">%</span></div><div class="health-lbl">体脂率</div></div>
+    </div>
+    <div style="background:var(--card);border-radius:14px;padding:14px 16px;border:.5px solid var(--border);margin-top:8px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:12px">减脂进度</div>
+      ${pr("体脂率","30.4%","目标 22%","#ff3b30",Math.round((1-(30.4-22)/30.4)*100))}
+      ${pr("计划进度","第"+planDay+"天","共 21 天","#007aff",Math.round(planDay/21*100))}
+      ${pr("本周进度","第"+Math.ceil(planDay/7)+"周","共 3 周","#34c759",Math.round(Math.ceil(planDay/7)/3*100))}
+    </div>
+    <div style="background:var(--card);border-radius:14px;padding:14px 16px;border:.5px solid var(--border);margin-top:8px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">每日时间分配</div>
+      ${tb("工作","6.5h","#5856d6",27)}
+      ${tb("育儿陪伴","5.4h","#007aff",23)}
+      ${tb("睡眠","8h","#af52de",33)}
+      ${tb("运动健身","1h45m","#ff3b30",7)}
+      ${tb("三餐护肤","2.3h","#34c759",10)}
+    </div>
+    <div style="background:var(--card);border-radius:14px;padding:14px 16px;border:.5px solid var(--border);margin-top:8px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px">健康建议</div>
+      ${tip("💧","每日饮水","2000ml以上，运动后及时补充")}
+      ${tip("🥦","蛋白质","每日≥120g，以鱼/鸡胸肉/虾仁为主")}
+      ${tip("💤","睡眠","22:00入睡，8h高质量睡眠助减脂")}
+      ${tip("📊","每周打卡","周日测体重+体脂，记录趋势变化")}
+    </div></div>`;
+  }
+
+  document.getElementById("app").innerHTML=html;
+}
+
+function mc(icon,name,time,items,cal,cls,wide=false){
+  return `<div class="meal-card${wide?" wide":""}">
+    <div class="meal-icon">${icon}</div>
+    <div class="meal-time">${time}</div>
+    <div class="meal-name">${name}</div>
+    <div class="meal-cal ${cls}">${cal} kcal</div>
+    <div class="meal-items">${items}</div>
+  </div>`;
+}
+function pr(label,cur,target,color,pct){
+  return `<div style="margin-bottom:12px">
+    <div class="progress-row"><span>${label}</span><span style="color:var(--sub);font-size:12px">${cur} / ${target}</span></div>
+    <div class="progress-bg"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+  </div>`;
+}
+function tb(label,val,color,pct){
+  return `<div style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+      <span>${label}</span><span style="color:var(--sub)">${val}·${pct}%</span>
+    </div>
+    <div class="progress-bg"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>
+  </div>`;
+}
+function tip(icon,title,desc){
+  return `<div style="display:flex;gap:10px;margin-bottom:8px;font-size:13px;line-height:1.6">
+    <span>${icon}</span><div><b>${title}</b> <span style="color:var(--sub)">${desc}</span></div>
+  </div>`;
+}
+function toggle(id){expanded.has(id)?expanded.delete(id):expanded.add(id);render();}
+function setView(v){
+  view=v;
+  ["today","meals","plan","health"].forEach(x=>{
+    document.getElementById("btn-"+x).classList.toggle("on",x===v);
+  });
+  render();
+}
+function setDay(d){planDay=d;render();}
+
+clearInterval(ticker);
+ticker=setInterval(render,30000);
+render();
+</script>
+</body>
+</html>
