@@ -104,6 +104,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;backg
   <div class="bnav-btn" id="btn-meals" onclick="setView('meals')"><div class="bnav-icon">🥗</div>餐食</div>
   <div class="bnav-btn" id="btn-plan" onclick="setView('plan')"><div class="bnav-icon">📅</div>计划</div>
   <div class="bnav-btn" id="btn-health" onclick="setView('health')"><div class="bnav-icon">💪</div>健康</div>
+  <div class="bnav-btn" id="btn-dailyx" onclick="setView('dailyx')"><div class="bnav-icon">📊</div>DailyX</div>
 </div>
 
 <script>
@@ -149,6 +150,71 @@ const MEETINGS={
 };
 
 const WD_CN=["周日","周一","周二","周三","周四","周五","周六"];
+
+// ── DailyX 工作台数据（vote-researcher 维护） ──────────────────
+const DAILYX_START="2026-04-16";  // D1 = HY-World 发布日
+
+// 14 天日历（D1-D14）
+const DAILYX_14D=[
+  {d:1,date:"04-16",weekday:"周四",sgt:"20:00",lang:"EN",topic:"HY-World 2.0",origin:"Tencent (中)",status:"done",link:"https://x.com/TabDuoBao/status/2044746774536180030"},
+  {d:2,date:"04-17",weekday:"周五",sgt:"09:00",lang:"ZH",topic:"ZK Prover SPOF",origin:"@fermah_xyz (美)",status:"queued"},
+  {d:2,date:"04-17",weekday:"周五",sgt:"20:00",lang:"EN",topic:"中国主体 (vote-bot 当天选)",origin:"TBD",status:"pending"},
+  {d:3,date:"04-18",weekday:"周六",sgt:"09:00",lang:"ZH",topic:"Gemma 4",origin:"@googledevs (美)",status:"queued"},
+  {d:3,date:"04-18",weekday:"周六",sgt:"20:00",lang:"EN",topic:"中国主体",origin:"TBD",status:"pending"},
+  {d:4,date:"04-19",weekday:"周日",sgt:"all-day",lang:"--",topic:"D+3 X·RAY 重测 + 报告",origin:"vote-researcher",status:"pending"},
+  {d:5,date:"04-20",weekday:"周一",sgt:"09:00",lang:"ZH",topic:"5 条 Thread (开源 AI 大爆发)",origin:"thread day",status:"pending"},
+  {d:6,date:"04-21",weekday:"周二",sgt:"09+20",lang:"双",topic:"D6 双发",origin:"TBD",status:"pending"},
+  {d:7,date:"04-22",weekday:"周三",sgt:"09+20",lang:"双",topic:"D7 双发 + 周报",origin:"TBD",status:"pending"},
+  {d:8,date:"04-23",weekday:"周四",sgt:"16+22",lang:"双",topic:"切 B 组时段 (X·RAY 推荐)",origin:"TBD",status:"pending"},
+  {d:9,date:"04-24",weekday:"周五",sgt:"16+22",lang:"双",topic:"D9 B 组",origin:"TBD",status:"pending"},
+  {d:10,date:"04-25",weekday:"周六",sgt:"16+22",lang:"双",topic:"D10 B 组",origin:"TBD",status:"pending"},
+  {d:11,date:"04-26",weekday:"周日",sgt:"--",lang:"--",topic:"D+10 X·RAY 中期评估",origin:"vote-researcher",status:"pending"},
+  {d:12,date:"04-27",weekday:"周一",sgt:"09:00",lang:"ZH",topic:"D12 Thread Day #2",origin:"thread day",status:"pending"},
+  {d:13,date:"04-28",weekday:"周二",sgt:"16+22",lang:"双",topic:"D13 B 组",origin:"TBD",status:"pending"},
+  {d:14,date:"04-29",weekday:"周三",sgt:"--",lang:"--",topic:"D+14 终评估 + 决策",origin:"vote-researcher",status:"pending"},
+];
+
+// 每日 SOP (B1-B9，B5 是周纪律)
+const DAILYX_DAILY_SOPS=[
+  {id:"B1",t:"推文必带钩子（问题/数据/预测）"},
+  {id:"B2",t:"24h 内回所有评论"},
+  {id:"B3",t:"Hashtag ≤2 (1 高流量 + 1 长尾)"},
+  {id:"B4",t:"固定时段发推 (A 组 SGT 09:00 + 20:00)"},
+  {id:"B6",t:"主动互动 5-10 次 (VIP 6 人优先)"},
+  {id:"B9",t:"@ 提及 (本周累计 ≤2 次)"},
+];
+
+// 每周 SOP
+const DAILYX_WEEKLY_SOPS=[
+  {id:"B7",t:"3 原创 : 2 转发 : 1 回复 (周末复盘)"},
+  {id:"B8",t:"周二 = Thread Day (5+ 条 thread)"},
+  {id:"B5",t:"≥2 条 thread (已含 B8)"},
+  {id:"R",  t:"周日 vote-researcher 周报 (data + 选题)"},
+];
+
+// 当前 P0/P1 任务（与 task list 同步，手动更新）
+const DAILYX_TASKS=[
+  {p:"P0",emoji:"🔴",t:"PR #97 评审跟进合并",owner:"vote-researcher 催 architect/VM"},
+  {p:"P1",emoji:"🟡",t:"Issue #85 关单条件确认",owner:"等 PR #97 + admin-hub PR #87"},
+  {p:"P1",emoji:"🟡",t:"Issue #78 raw log 落地核对",owner:"等 architect 核 app.py:563"},
+  {p:"P1",emoji:"🟡",t:"VIP 6 + 18 关键词入库",owner:"等 VM 跑 SQL batch"},
+  {p:"P1",emoji:"🟡",t:"D+1 (04-17) HY-World 数据采样",owner:"vote-researcher 12:00 UTC"},
+  {p:"P2",emoji:"🟢",t:"D5 Thread Day 准备 (开源 AI 5 条)",owner:"vote-researcher 04-19 出 intent-tweet URL"},
+];
+
+// 关键节点（D+3/D+7/D+14）
+const DAILYX_MILESTONES=[
+  {date:"04-17",label:"D+1 HY-World 24h 数据"},
+  {date:"04-19",label:"D+3 X·RAY 重测 + 健康分曲线"},
+  {date:"04-23",label:"D+7 内容矩阵分析 + B/A 时段切换"},
+  {date:"04-30",label:"D+14 终评估 + 决策(继续/调策/换号)"},
+];
+
+function dailyxDayNum(){
+  const start=new Date(DAILYX_START+"T00:00:00+08:00");
+  const now=new Date();
+  return Math.max(1, Math.floor((now-start)/86400000)+1);
+}
 
 function toMin(s){const[h,m]=s.split(":").map(Number);return h*60+m;}
 function fmtTime(d){return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
@@ -367,6 +433,72 @@ function render(){
     </div></div>`;
   }
 
+
+  /* DAILYX */
+  if(view==="dailyx"){
+    const dayN=dailyxDayNum();
+    const todayItems=DAILYX_14D.filter(x=>x.d===dayN);
+
+    html+=`<div class="now-wrap"><div class="now-card bg-blue">
+      <div class="now-time">D${dayN}/14</div>
+      <div class="now-label">DailyX 工作台</div>
+      <div class="now-title">@TabDuoBao 14 天破冰运营</div>
+      <div class="now-next">起点 ${DAILYX_START} · 健康分 22 → 目标 55+</div>
+      <div class="now-bar-bg"><div class="now-bar" style="width:${Math.round(dayN/14*100)}%"></div></div>
+    </div></div>`;
+
+    if(todayItems.length){
+      html+=`<div class="section"><div class="sec-title">📅 今日 DailyX 推文 (D${dayN})</div>`;
+      todayItems.forEach(x=>{
+        const se={done:"✅",queued:"📝",pending:"⏳"}[x.status]||"⏳";
+        const lk=x.link?` <a href="${x.link}" target="_blank" style="color:#007aff;font-size:11px">查看 ↗</a>`:"";
+        html+=`<div class="mtg-pill">${se} ${x.sgt} · ${x.lang} · ${x.topic}<div style="font-size:11px;color:var(--sub);margin-top:2px">${x.origin}${lk}</div></div>`;
+      });
+      html+=`</div>`;
+    }
+
+    html+=`<div class="section"><div class="sec-title">🎯 当前 P0/P1 任务</div>`;
+    DAILYX_TASKS.forEach(t=>{
+      html+=`<div class="mtg-pill">${t.emoji} <b>${t.p}</b> · ${t.t}<div style="font-size:11px;color:var(--sub);margin-top:2px">${t.owner}</div></div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="section"><div class="sec-title">✅ 每日 SOP</div>`;
+    DAILYX_DAILY_SOPS.forEach(s=>{
+      html+=`<div style="padding:8px 12px;border-bottom:.5px solid var(--border);font-size:13px">☐ <b>${s.id}</b> ${s.t}</div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="section"><div class="sec-title">📆 本周 SOP</div>`;
+    DAILYX_WEEKLY_SOPS.forEach(s=>{
+      html+=`<div style="padding:8px 12px;border-bottom:.5px solid var(--border);font-size:13px">☐ <b>${s.id}</b> ${s.t}</div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="section"><div class="sec-title">🗓 14 天日历</div>`;
+    const byDay={};
+    DAILYX_14D.forEach(x=>{(byDay[x.d]=byDay[x.d]||[]).push(x);});
+    Object.keys(byDay).forEach(d=>{
+      const items=byDay[d];
+      const dayInt=parseInt(d);
+      const isToday=dayInt===dayN;
+      const bg=isToday?"background:rgba(0,122,255,0.12);border:1px solid #007aff":"background:var(--card);border:.5px solid var(--border)";
+      html+=`<div style="padding:10px 12px;margin-bottom:6px;border-radius:8px;${bg}"><div style="font-size:12px;font-weight:600">D${d} · ${items[0].date} ${items[0].weekday}${isToday?' ← 今天':''}</div>`;
+      items.forEach(x=>{
+        const se={done:"✅",queued:"📝",pending:"⏳"}[x.status]||"⏳";
+        html+=`<div style="font-size:12px;color:var(--sub);margin-top:3px">${se} ${x.sgt} ${x.lang} · ${x.topic}</div>`;
+      });
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+
+    html+=`<div class="section"><div class="sec-title">🎯 关键节点</div>`;
+    DAILYX_MILESTONES.forEach(m=>{
+      html+=`<div class="mtg-pill">📍 <b>${m.date}</b> ${m.label}</div>`;
+    });
+    html+=`</div>`;
+  }
+
   document.getElementById("app").innerHTML=html;
 }
 
@@ -401,7 +533,7 @@ function tip(icon,title,desc){
 function toggle(id){expanded.has(id)?expanded.delete(id):expanded.add(id);render();}
 function setView(v){
   view=v;
-  ["today","meals","plan","health"].forEach(x=>{
+  ["today","meals","plan","health","dailyx"].forEach(x=>{
     document.getElementById("btn-"+x).classList.toggle("on",x===v);
   });
   render();
