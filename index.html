@@ -231,6 +231,114 @@ const DAILYX_MILESTONES=[
   {date:"04-30",label:"D+14 终评估 + 决策 (粉丝 80+ / X·RAY 50+ / 互动率 >2%)"},
 ];
 
+// 每日执行计划 (60-90 分钟)
+const DAILYX_DAILY_PLAN=[
+  {period:"🌅 晨间时段",time:"08:00-09:00",dur:"约30分钟",color:"#ff9500",items:[
+    {n:"1. 黄金时段发布主推文（1条）",detail:"• 内容必须含\"争议观点\"或\"反常识结论\"\n• 结构：Hook句(20字内) + 论据(100字内) + 互动问题\n• 禁止纯新闻转发，必须带个人观点\n• 结尾固定：\"你怎么看？\" / \"同意吗？\" / \"99%的人想不到这点\""},
+    {n:"2. 蹭热点扫描（10分钟）",detail:"• 刷 X trending 榜单 + DePIN/RWA/AI 相关话题\n• 找到 1 个可关联的热点，准备晚间发布"}
+  ]},
+  {period:"🌆 午间时段",time:"12:00-13:00",dur:"约20分钟",color:"#5ac8fa",items:[
+    {n:"3. 对话计划·第一轮（回复 5 条）",detail:"• 找 DePIN/RWA/AI 赛道热门推文（粉丝量 1万+ KOL）\n• 每条回复 ≥ 50字，必须\"补充\"或\"温和反驳\"\n• 严禁\"说得对\"\"学习了\"类无效回复\n• 策略：对大 KOL 提供独特视角，对同量级账号建立长期关系"}
+  ]},
+  {period:"🌃 晚间时段",time:"20:00-22:00",dur:"约30分钟",color:"#5856d6",items:[
+    {n:"4. 发布第二条推文（蹭热点内容）",detail:"• 结合早间扫描的热点 + 自己的赛道观点\n• 形式：短观点帖 或 thread 首条"},
+    {n:"5. 对话计划·第二轮（回复 5 条）",detail:"• 专注国内 Web3 从业者活跃时段\n• 每日总计 10 条高质量回复达成"},
+    {n:"6. 每日数据记录（5分钟）",detail:"• 记录当天两条推文的：点赞 / 转发 / 回复 / 浏览量\n• 记录新增粉丝数、取关数\n• 用 Notion 或 Excel 简单表格即可"}
+  ]}
+];
+
+// 每周主题计划（按星期）
+const DAILYX_WEEKLY_PLAN=[
+  {wd:1,name:"周一",theme:"战略规划日",emoji:"🎯",color:"#007aff",actions:[
+    "复盘上周数据（详见每周复盘模板）",
+    "确定本周 thread 主题（1-2 个）",
+    "扫描本周将发生的行业大事件（融资 / 主网上线 / 监管动态），提前准备观点"
+  ]},
+  {wd:2,name:"周二",theme:"Thread 深度内容日",emoji:"🧵",color:"#5856d6",actions:[
+    "发布 1 条深度 thread（6-10 条）",
+    "主题方向：DePIN / RWA / AI 交叉领域独家分析",
+    "首条必须是\"强 Hook\"：提问式 或 反常识论断",
+    "结构：首条引入 → 中间论证 → 末条总结 + 互动引导"
+  ]},
+  {wd:3,name:"周三",theme:"投票互动日 ⭐高互动率",emoji:"🗳",color:"#ff2d55",actions:[
+    "发布 1 条投票推文（X 原生投票功能互动率最高）",
+    "主题选项：行业预测 / 项目 PK / 观点站队",
+    "搭配一段引导性文字说明你的倾向"
+  ]},
+  {wd:4,name:"周四",theme:"资源整理日 ⭐高收藏率",emoji:"📚",color:"#af52de",actions:[
+    "发布 1 条资源帖：工具清单 / 项目地图 / 阅读清单",
+    "使用 thread 或长图形式",
+    "加入\"收藏备用\"引导语"
+  ]},
+  {wd:5,name:"周五",theme:"@提及 + 互动日",emoji:"📣",color:"#ff9500",actions:[
+    "发布推文时策略性 @ 1-2 位相关 KOL 或项目官方",
+    "内容必须对被 @ 方有价值（赞美 / 补充 / 建设性意见）",
+    "切忌硬蹭，每周 @ 不超过 3 次"
+  ]},
+  {wd:6,name:"周六",theme:"长文总结日",emoji:"📝",color:"#34c759",actions:[
+    "发布本周行业观察长推文",
+    "可作为 DailyXDigest 媒体内容的引流入口",
+    "植入 CTA 链接"
+  ]},
+  {wd:0,name:"周日",theme:"社区渗透日",emoji:"🌐",color:"#5ac8fa",actions:[
+    "不发原创，全天执行\"对话计划\"，回复数量翻倍至 20 条",
+    "重点渗透 Spaces（语音间），主动发言获取曝光",
+    "给本周互动过的账号点赞 / 转发，建立关系"
+  ]}
+];
+
+// 每月成长路径（3 个月）
+const DAILYX_MONTHLY_PLAN=[
+  {m:"第 1 个月",title:"基础建设期",goal:"22 → 100 粉丝",color:"#34c759",blocks:[
+    {w:"Week 1 · 调研 + 测试",items:[
+      "完成 20 位赛道 KOL 名单整理，分级（S/A/B）",
+      "测试 2 个发布时段（早 8 点 vs 晚 20 点），确定主发布窗口",
+      "建立内容选题库（至少 30 个待发布选题）"
+    ]},
+    {w:"Week 2 · 钩子策略落地",items:[
+      "所有推文强制使用\"争议观点\"模板",
+      "首次发布 thread，测试完播率",
+      "首次发布投票，测试互动率"
+    ]},
+    {w:"Week 3 · 互动策略加码",items:[
+      "每日回复量从 10 → 15 条",
+      "开始参与 1 场 DePIN/RWA 相关 Spaces",
+      "复盘前两周数据，淘汰表现差的内容类型"
+    ]},
+    {w:"Week 4 · 首次月度复盘",items:[
+      "粉丝增长 vs 预期差距分析",
+      "确定 Month 2 的内容主轴（从数据中发现的最优类型）",
+      "与互动最多的 3-5 位账号建立私信联系"
+    ]}
+  ]},
+  {m:"第 2 个月",title:"关系建立期",goal:"100 → 250 粉丝",color:"#007aff",blocks:[
+    {w:"核心动作",items:[
+      "每周至少 1 次与其他创作者的联合 thread 或互相引用",
+      "参与 Spaces 次数提升至每周 2 场，争取 co-host 机会",
+      "开始建立\"招牌系列\"：如「每周 DePIN 深度」固定栏目",
+      "DailyXDigest 与 X 账号内容形成互导闭环"
+    ]}
+  ]},
+  {m:"第 3 个月",title:"品牌化期",goal:"250 → 500 粉丝",color:"#af52de",blocks:[
+    {w:"核心动作",items:[
+      "锁定个人 IP 标签：「DePIN × RWA × AI 交叉观察者」",
+      "每月 1 次独家观点长文，争取被行业媒体引用",
+      "主办 1 场自己的 Spaces，邀请 S 级 KOL 对谈",
+      "付费投流测试：挑选数据最好的 1 条推文，投 $50-100 测试 ROI"
+    ]}
+  ]}
+];
+
+// 关键指标红线（3 个月内须达成）
+const DAILYX_KPI_HEADERS=["指标","当前","1 个月","2 个月","3 个月"];
+const DAILYX_KPI_ROWS=[
+  {k:"粉丝数",       now:"22",  m1:"100", m2:"250", m3:"500"},
+  {k:"平均单推点赞", now:"1-2", m1:"5",   m2:"10",  m3:"20"},
+  {k:"平均单推回复", now:"0-1", m1:"2",   m2:"4",   m3:"6"},
+  {k:"每周 thread 数", now:"0", m1:"1",   m2:"2",   m3:"2"},
+  {k:"每月 Spaces 参与", now:"0", m1:"1", m2:"4",   m3:"6"},
+];
+
 function dailyxDayNum(){
   const start=new Date(DAILYX_START+"T00:00:00+08:00");
   const now=new Date();
@@ -478,6 +586,30 @@ function render(){
       html+=`</div>`;
     }
 
+    // ── 📅 每日执行计划（60-90 分钟）──
+    html+=`<div class="section"><div class="sec-title">📅 每日执行计划 · 60-90 分钟</div>`;
+    DAILYX_DAILY_PLAN.forEach(p=>{
+      const pid="dp-"+p.time.replace(/[^0-9]/g,"");
+      const isExp=expanded.has(pid);
+      html+=`<div style="background:var(--card);border-radius:12px;padding:12px 14px;border:.5px solid var(--border);border-left:3px solid ${p.color};margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <div style="font-size:14px;font-weight:600">${p.period}</div>
+          <div style="font-size:11px;color:var(--sub)">${p.time} · ${p.dur}</div>
+        </div>`;
+      p.items.forEach((it,i)=>{
+        const iid=pid+"-"+i;
+        const itExp=expanded.has(iid);
+        html+=`<div style="margin-top:8px;border-top:.5px solid var(--border);padding-top:8px">
+          <div style="font-size:13px;font-weight:500;cursor:pointer" onclick="toggle('${iid}')">${it.n}
+            <span style="font-size:11px;color:var(--blue);float:right">${itExp?"▲":"▼"}</span>
+          </div>
+          ${itExp?`<div class="tl-detail" style="margin-top:6px;white-space:pre-line">${it.detail}</div>`:""}
+        </div>`;
+      });
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+
     html+=`<div class="section"><div class="sec-title">📊 实时账号指标 (D+1)</div>`;
     DAILYX_METRICS.forEach(m=>{
       html+=`<div class="mtg-pill"><b>${m.label}</b> · ${m.d0} → <b>${m.now}</b> (${m.delta})<div style="font-size:11px;color:var(--sub);margin-top:2px">${m.note}</div></div>`;
@@ -499,6 +631,27 @@ function render(){
     html+=`<div class="section"><div class="sec-title">📆 本周 SOP</div>`;
     DAILYX_WEEKLY_SOPS.forEach(s=>{
       html+=`<div style="padding:8px 12px;border-bottom:.5px solid var(--border);font-size:13px">☐ <b>${s.id}</b> ${s.t}</div>`;
+    });
+    html+=`</div>`;
+
+    // ── 📆 每周主题计划（周一~周日）──
+    const todayWd=new Date().getDay();
+    html+=`<div class="section"><div class="sec-title">📆 每周主题计划</div>`;
+    // 按 周一→周日 顺序
+    [1,2,3,4,5,6,0].forEach(wd=>{
+      const p=DAILYX_WEEKLY_PLAN.find(x=>x.wd===wd);
+      if(!p)return;
+      const isToday=wd===todayWd;
+      const pid="wp-"+wd;
+      const isExp=expanded.has(pid)||isToday;
+      const bg=isToday?`background:${p.color}14;border-left:3px solid ${p.color}`:`background:var(--card);border-left:3px solid ${p.color}40`;
+      html+=`<div style="border-radius:12px;padding:10px 14px;border:.5px solid var(--border);${bg};margin-bottom:6px">
+        <div style="display:flex;justify-content:space-between;cursor:pointer" onclick="toggle('${pid}')">
+          <div style="font-size:13px;font-weight:600;color:${p.color}">${p.emoji} ${p.name} · ${p.theme}${isToday?' <span style="font-size:10px;color:var(--blue);margin-left:4px">← 今天</span>':''}</div>
+          <div style="font-size:11px;color:var(--sub)">${isExp?"▲":"▼"}</div>
+        </div>
+        ${isExp?`<ul style="margin:8px 0 0 18px;font-size:12px;color:var(--sub);line-height:1.8">${p.actions.map(a=>`<li>${a}</li>`).join("")}</ul>`:""}
+      </div>`;
     });
     html+=`</div>`;
 
@@ -524,6 +677,43 @@ function render(){
       html+=`<div class="mtg-pill">📍 <b>${m.date}</b> ${m.label}</div>`;
     });
     html+=`</div>`;
+
+    // ── 🗓️ 每月成长路径（3 个月）──
+    html+=`<div class="section"><div class="sec-title">🗓️ 每月成长路径</div>`;
+    DAILYX_MONTHLY_PLAN.forEach((mp,idx)=>{
+      const mid="mp-"+idx;
+      const isExp=expanded.has(mid)||idx===0;
+      html+=`<div style="background:var(--card);border-radius:12px;padding:12px 14px;border:.5px solid var(--border);border-left:3px solid ${mp.color};margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;cursor:pointer" onclick="toggle('${mid}')">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:${mp.color}">${mp.m} · ${mp.title}</div>
+            <div style="font-size:11px;color:var(--sub);margin-top:2px">目标：${mp.goal}</div>
+          </div>
+          <div style="font-size:11px;color:var(--sub);align-self:center">${isExp?"▲":"▼"}</div>
+        </div>
+        ${isExp?mp.blocks.map(b=>`<div style="margin-top:10px;padding-top:8px;border-top:.5px solid var(--border)">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px">${b.w}</div>
+          <ul style="margin:0 0 0 18px;font-size:12px;color:var(--sub);line-height:1.8">${b.items.map(it=>`<li>${it}</li>`).join("")}</ul>
+        </div>`).join(""):""}
+      </div>`;
+    });
+    html+=`</div>`;
+
+    // ── 📈 关键指标红线（3 个月内须达成）──
+    html+=`<div class="section"><div class="sec-title">📈 关键指标红线</div>
+      <div style="background:var(--card);border-radius:12px;border:.5px solid var(--border);overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:var(--bg)">${DAILYX_KPI_HEADERS.map((h,i)=>`<th style="padding:8px 6px;text-align:${i===0?"left":"center"};font-weight:600;color:var(--sub);border-bottom:.5px solid var(--border)">${h}</th>`).join("")}</tr></thead>
+          <tbody>${DAILYX_KPI_ROWS.map(r=>`<tr>
+            <td style="padding:8px 6px;font-weight:500;border-bottom:.5px solid var(--border)">${r.k}</td>
+            <td style="padding:8px 6px;text-align:center;color:var(--red);border-bottom:.5px solid var(--border)">${r.now}</td>
+            <td style="padding:8px 6px;text-align:center;border-bottom:.5px solid var(--border)">${r.m1}</td>
+            <td style="padding:8px 6px;text-align:center;border-bottom:.5px solid var(--border)">${r.m2}</td>
+            <td style="padding:8px 6px;text-align:center;color:var(--green);font-weight:600;border-bottom:.5px solid var(--border)">${r.m3}</td>
+          </tr>`).join("")}</tbody>
+        </table>
+      </div>
+    </div>`;
   }
 
   document.getElementById("app").innerHTML=html;
