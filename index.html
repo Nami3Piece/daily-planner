@@ -345,6 +345,39 @@ function dailyxDayNum(){
   return Math.max(1, Math.floor((now-start)/86400000)+1);
 }
 
+// ── SOP 勾选状态（localStorage，每日自动重置） ──
+function sopTodayKey(){
+  const d=new Date();
+  const sgt=new Date(d.getTime()+8*3600*1000);
+  return "sop_"+sgt.toISOString().slice(0,10);
+}
+function getSopState(){
+  try{const raw=localStorage.getItem(sopTodayKey());return raw?JSON.parse(raw):{};}catch(e){return{};}
+}
+function toggleSop(id){
+  const s=getSopState();s[id]=!s[id];
+  localStorage.setItem(sopTodayKey(),JSON.stringify(s));
+  if(view==="dailyx")render();
+}
+
+// ── 今日推文状态 + 倒计时 ──
+function tweetStatus(item){
+  if(item.status==="done")return{kind:"done",bg:"#d4f4dd",border:"#34c759",icon:"✅",extra:""};
+  const now=new Date();
+  const sgt=new Date(now.getTime()+8*3600*1000);
+  const [h,m]=(item.sgt||"23:59").split(":").map(Number);
+  const targetMin=h*60+(m||0);
+  const nowMin=sgt.getUTCHours()*60+sgt.getUTCMinutes();
+  const diff=targetMin-nowMin;
+  if(diff>0){
+    const hh=Math.floor(diff/60),mm=diff%60;
+    return{kind:"upcoming",bg:"#fff4d4",border:"#ff9500",icon:"⏳",extra:` · 距发布 ${hh}h${mm}m`};
+  }else{
+    const ago=-diff,ah=Math.floor(ago/60),am=ago%60;
+    return{kind:"overdue",bg:"#ffd4d4",border:"#ff3b30",icon:"⚠️",extra:` · 已超时 ${ah}h${am}m`};
+  }
+}
+
 function toMin(s){const[h,m]=s.split(":").map(Number);return h*60+m;}
 function fmtTime(d){return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
 function fmtDur(m){const h=Math.floor(m/60),mn=m%60;return h>0?(mn>0?h+"h"+mn+"m":h+"h"):(mn+"m");}
@@ -579,9 +612,9 @@ function render(){
     if(todayItems.length){
       html+=`<div class="section"><div class="sec-title">📅 今日 DailyX 推文 (D${dayN})</div>`;
       todayItems.forEach(x=>{
-        const se={done:"✅",queued:"📝",pending:"⏳"}[x.status]||"⏳";
+        const st=tweetStatus(x);
         const lk=x.link?` <a href="${x.link}" target="_blank" style="color:#007aff;font-size:11px">查看 ↗</a>`:"";
-        html+=`<div class="mtg-pill">${se} ${x.sgt} · ${x.lang} · ${x.topic}<div style="font-size:11px;color:var(--sub);margin-top:2px">${x.origin}${lk}</div></div>`;
+        html+=`<div style="background:${st.bg};border:1px solid ${st.border};color:#1c1c1e;font-size:12px;font-weight:500;padding:8px 12px;border-radius:10px;margin-bottom:6px">${st.icon} <b>${x.sgt}</b> · ${x.lang} · ${x.topic}${st.extra}<div style="font-size:11px;color:var(--sub);margin-top:2px">${x.origin}${lk}</div></div>`;
       });
       html+=`</div>`;
     }
@@ -622,15 +655,27 @@ function render(){
     });
     html+=`</div>`;
 
-    html+=`<div class="section"><div class="sec-title">✅ 每日 SOP</div>`;
+    const sopState=getSopState();
+    const sopTotal=DAILYX_DAILY_SOPS.length;
+    const sopDone=DAILYX_DAILY_SOPS.filter(s=>sopState[s.id]).length;
+    const sopPct=Math.round(sopDone/sopTotal*100);
+    html+=`<div class="section"><div class="sec-title">✅ 每日 SOP · ${sopDone}/${sopTotal} (${sopPct}%)</div>`;
+    html+=`<div style="height:6px;background:var(--bg);border-radius:3px;margin-bottom:8px;overflow:hidden"><div style="height:100%;background:${sopPct===100?'var(--green)':sopPct>=60?'var(--blue)':sopPct>=30?'var(--orange)':'var(--red)'};width:${sopPct}%;transition:width .3s"></div></div>`;
     DAILYX_DAILY_SOPS.forEach(s=>{
-      html+=`<div style="padding:8px 12px;border-bottom:.5px solid var(--border);font-size:13px">☐ <b>${s.id}</b> ${s.t}</div>`;
+      const ck=sopState[s.id]?true:false;
+      const style=ck?'text-decoration:line-through;color:var(--sub);opacity:.6':'';
+      html+=`<div style="padding:8px 12px;border-bottom:.5px solid var(--border);font-size:13px;cursor:pointer;user-select:none" onclick="toggleSop('${s.id}')"><span style="display:inline-block;width:18px">${ck?'✅':'☐'}</span><span style="${style}"><b>${s.id}</b> ${s.t}</span></div>`;
     });
     html+=`</div>`;
 
-    html+=`<div class="section"><div class="sec-title">📆 本周 SOP</div>`;
+    const wSopState=getSopState();
+    const wTotal=DAILYX_WEEKLY_SOPS.length;
+    const wDone=DAILYX_WEEKLY_SOPS.filter(s=>wSopState[s.id]).length;
+    html+=`<div class="section"><div class="sec-title">📆 本周 SOP · ${wDone}/${wTotal}</div>`;
     DAILYX_WEEKLY_SOPS.forEach(s=>{
-      html+=`<div style="padding:8px 12px;border-bottom:.5px solid var(--border);font-size:13px">☐ <b>${s.id}</b> ${s.t}</div>`;
+      const ck=wSopState[s.id]?true:false;
+      const style=ck?'text-decoration:line-through;color:var(--sub);opacity:.6':'';
+      html+=`<div style="padding:8px 12px;border-bottom:.5px solid var(--border);font-size:13px;cursor:pointer;user-select:none" onclick="toggleSop('${s.id}')"><span style="display:inline-block;width:18px">${ck?'✅':'☐'}</span><span style="${style}"><b>${s.id}</b> ${s.t}</span></div>`;
     });
     html+=`</div>`;
 
